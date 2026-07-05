@@ -40,6 +40,10 @@
             <groupId>com.ljh</groupId>
             <artifactId>AI-DevOps-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ljh</groupId>
+            <artifactId>AI-DevOps-case</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
