@@ -1,0 +1,22 @@
+package com.ljh.api;
+
+import com.ljh.api.dto.*;
+import com.ljh.api.response.Response;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+
+import java.util.List;
+
+/**
+ * 智能体服务接口
+ */
+public interface IAgentService {
+
+    Response<List<AiAgentConfigResponseDTO>> queryAiAgentConfigList();
+
+    Response<CreateSessionResponseDTO> createSession(CreateSessionRequestDTO requestDTO);
+
+    Response<ChatResponseDTO> chat(ChatRequestDTO requestDTO);
+
+    ResponseBodyEmitter chatStream(ChatRequestDTO requestDTO);
+
+}
