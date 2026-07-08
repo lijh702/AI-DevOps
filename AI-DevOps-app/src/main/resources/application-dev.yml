@@ -42,6 +42,15 @@ spring:
     connection-test-query: SELECT 1
   type: com.zaxxer.hikari.HikariDataSource
 
+# AI API Configuration (意图识别专属配置)
+intent-ai-api:
+  base-url: https://taotoken.net/api/v1/
+  api-key: * * * * * * * * * * * *
+  completions-path: chat/completions
+  embeddings-path: embeddings
+  chat-model:
+    model: glm_for_coding
+
 # MyBatis 配置【如需使用记得打开】
 mybatis:
   mapper-locations: classpath:/mybatis/mapper/*.xml
