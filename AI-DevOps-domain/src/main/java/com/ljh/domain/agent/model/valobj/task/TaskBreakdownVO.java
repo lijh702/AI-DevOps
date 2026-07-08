@@ -19,7 +19,7 @@ public class TaskBreakdownVO {
     private String originalRequest;
     private List<SubTask> subTasks;
     @Builder.Default
-    private boolean needConfirmation = true;
+    private boolean needConfirmation = true;     //标记拆解结果是否需要用户确认， @Builder.Default 设置默认值为 true
     private String summary;
 
     @Data
