@@ -15,7 +15,6 @@ import java.util.Map;
 
 /**
  * 提示词服务
- * <p>
  * 组合 DynamicPromptBuilder、MilestoneTracker、IChatContextService，
  * 向 case 层提供统一的提示词领域能力。
  */

@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 保留重要消息（System消息、工具结果、用户关键消息）
+ */
 @Component
 public class PriorityReducer implements MessageReducer {
 
@@ -38,6 +41,14 @@ public class PriorityReducer implements MessageReducer {
         return kept.stream().map(PrioritizedMessage::getMessage).collect(Collectors.toList());
     }
 
+    /**
+     * 条件	                                优先级	    意图
+     * 角色为 tool 且内容包含错误关键词	        CRITICAL	工具调用出错的信息极其重要，不能丢弃
+     * 角色为 user 且内容包含路径或配置文件后缀	HIGH	    用户可能正在询问配置、文件路径等，需重点关注
+     * 角色为 system	                        HIGH	    系统提示词一般定义对话基调，重要性高
+     * 角色为 assistant且内容超长（>5000字符）	LOW	        特别长的模型回复往往包含大量冗长信息，优先丢弃
+     * 其他情况	                            MEDIUM	    默认中等优先级
+     */
     private Priority inferPriority(Map<String, Object> message) {
         String role = (String) message.get("role");
         String content = String.valueOf(message.get("content"));
@@ -72,6 +83,10 @@ public class PriorityReducer implements MessageReducer {
         return content != null ? content.length() / 2 : 0;
     }
 
+    /**
+     * 采用 极其粗略 的估算：每 2 个字符 ≈ 1 个 Token。
+     * todo这并非精确的 tokenization，但在很多场景下作为简单的近似足够用。如果需要精确控制，可替换为真正的 tokenizer。
+     */
     private int estimateTokens(List<PrioritizedMessage> messages) {
         return messages.stream().mapToInt(m -> estimateToken(m.getMessage())).sum();
     }

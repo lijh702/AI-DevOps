@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
  * <p>
  * 存储用户的偏好、规则、纠正、关键决策等长期记忆
  * 与 MilestoneVO（事件记录）不同，CoreMemoryVO 是提炼后的长期知识
- *
- * @author 教学版-WaLiCode
- * 2026/6/26
  */
 @Data
 @Builder

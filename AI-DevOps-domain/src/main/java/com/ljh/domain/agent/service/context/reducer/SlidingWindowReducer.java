@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 保留最近N条消息
+ */
 @Component
 public class SlidingWindowReducer implements MessageReducer {
     private static final int DEFAULT_WINDOW_SIZE = 20;

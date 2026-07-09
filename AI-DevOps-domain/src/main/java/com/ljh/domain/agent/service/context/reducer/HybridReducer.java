@@ -15,6 +15,7 @@ public class HybridReducer implements MessageReducer {
 
     @Override
     public List<Map<String, Object>> reduce(List<Map<String, Object>> messages, int tokenBudget) {
+        //获取两个Reducer的结果 (在原消息中所在的索引)
         Set<Integer> priorityKeep = indexSet(priorityReducer.reduce(messages, tokenBudget), messages);
         Set<Integer> slidingKeep  = indexSet(slidingReducer.reduce(messages, tokenBudget), messages);
 
@@ -35,6 +36,7 @@ public class HybridReducer implements MessageReducer {
         return result;
     }
 
+    //  将消息列表转换为索引集合
     private Set<Integer> indexSet(List<Map<String, Object>> subset, List<Map<String, Object>> all) {
         Set<Integer> indices = new HashSet<>();
         for (Map<String, Object> msg : subset) {
