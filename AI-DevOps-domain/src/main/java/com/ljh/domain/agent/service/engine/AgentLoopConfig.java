@@ -16,6 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AgentLoopConfig {
 
+    public enum AgentMode {
+        CHAT,   // 对话模式：轻量工具调用，maxRounds=10
+        AGENT   // 自主模式：多轮工具调用 + 任务分解，maxRounds=20
+    }
+
     /** 模式：chat（对话）/ agent（自主） */
     @Builder.Default
     private AgentMode mode = AgentMode.AGENT;
@@ -59,11 +64,4 @@ public class AgentLoopConfig {
     /** 死循环检测阈值：连续 N 轮工具签名相同则终止 */
     @Builder.Default
     private int diminishingReturnsThreshold = 2;
-
-    public enum AgentMode {
-        /** 对话模式：轻量工具调用 */
-        CHAT,
-        /** 自主模式：多轮工具调用 + 任务分解 */
-        AGENT
-    }
 }

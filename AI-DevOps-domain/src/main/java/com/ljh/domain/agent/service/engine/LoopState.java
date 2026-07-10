@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Agent 循环运行时状态
- * <p>对标 WaLiCode streamingAgent.ts 中的 local variables
+ * <p>对标 streamingAgent.ts 中的 local variables
  * <p>每个 Agent 循环拥有独立的 LoopState，线程安全
  *
  */
@@ -20,72 +20,60 @@ public class LoopState {
 
     private final AgentLoopConfig config;
 
-    /** 当前轮次（从 0 开始） */
-    private int round = 0;
-
-    /** 总工具调用次数 */
-    private final AtomicInteger totalToolCalls = new AtomicInteger(0);
-
-    /** 估算的总 token 数 */
-    private volatile long totalTokens = 0;
-
-    /** 终止原因 */
-    private volatile String stopReason;
-
-    /** 上一轮 AI 响应是否被 max_tokens 截断 */
-    private volatile boolean wasTruncated;
-
-    /** 最后活动时间戳（用于空闲超时检测） */
-    private volatile long lastActivityTime;
-
-    /** 死循环检测：每轮工具调用签名 */
-    private final List<String> roundSignatures = new ArrayList<>();
-
-    /** 消息历史（与 DynamicContext.messageHistory 共享引用） */
-    private List<Map<String, Object>> messageHistory;
-
-    /** 是否已压缩过上下文（防止无限压缩） */
-    private volatile boolean contextCompressed = false;
-
-    /** 413 错误连续出现次数 */
-    private final AtomicInteger consecutive413Errors = new AtomicInteger(0);
-
-    /** 外部控制：取消标志 */
-    private volatile boolean cancelled = false;
-
-    /** 取消原因 */
-    private volatile String cancelReason;
-
     public LoopState(AgentLoopConfig config) {
         this.config = config;
         this.lastActivityTime = System.currentTimeMillis();
     }
-
-    /**
-     * 初始化
-     */
+    // 初始化
     public static LoopState init(AgentLoopConfig config) {
         return new LoopState(config);
     }
+    /**
+     * 进度追踪
+     */
+    private int round = 0;  // 当前轮次（从 0 开始）
+    private final AtomicInteger totalToolCalls = new AtomicInteger(0);   // 总工具调用次数
+    private volatile long totalTokens = 0;  // 估算的总 token 数
 
     /**
-     * 是否应该继续循环
+     * 终止控制
      */
+    private volatile String stopReason; // 终止原因
+    private volatile boolean cancelled = false; // 用户取消标志
+    private volatile String cancelReason;   // 用户取消原因
+
+    /**
+     * 异常检测
+     */
+    private final List<String> roundSignatures = new ArrayList<>(); // 死循环检测：每轮工具调用签名
+    private volatile boolean wasTruncated;  // 上一轮 AI 响应是否被 max_tokens 截断
+    private final AtomicInteger consecutive413Errors = new AtomicInteger(0);    // 413 错误连续出现次数
+    private volatile long lastActivityTime; // 最后活动时间戳（用于空闲超时检测）
+
+    /**
+     * 压缩控制
+     */
+    private List<Map<String, Object>> messageHistory;   // 消息历史（与 DynamicContext.messageHistory 共享引用
+    private volatile boolean contextCompressed = false;    // 是否已压缩过上下文（防止无限压缩）
+
+
+
+    // 是否应该继续
     public boolean shouldContinue() {
         if (cancelled) return false;
         if (stopReason != null) return false;
         return round < config.getMaxRounds();
     }
-
+    //循环轮次增加
     public void incrementRound() {
         round++;
         touch();
     }
-
+    // 重试时回退轮次
     public void decrementRound() {
         if (round > 0) round--;
     }
-
+    // 工具调用轮次加 1
     public void incrementToolCalls() {
         totalToolCalls.incrementAndGet();
         touch();
@@ -99,6 +87,7 @@ public class LoopState {
         lastActivityTime = System.currentTimeMillis();
     }
 
+    // 是否过期
     public boolean isIdle() {
         return System.currentTimeMillis() - lastActivityTime > config.getIdleTimeoutMs();
     }

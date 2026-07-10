@@ -11,6 +11,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,6 +39,14 @@ import java.util.Map;
 @Component
 public class ContextCompressor {
 
+    /**
+     * 尝试从 Spring 容器中获取一个 ChatModel 类型的 Bean，并将其注入到当前类的这个字段中。
+     * 如果容器中不存在该类型的 Bean，则忽略它（不报错，字段保持为 null）
+     * Resource 默认按名称注入
+     */
+    @Autowired(required = false)
+    private ChatModel chatModel;
+
     @Resource
     private PriorityReducer priorityReducer;
 
@@ -47,8 +56,6 @@ public class ContextCompressor {
     @Resource
     private HybridReducer hybridReducer;
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private ChatModel chatModel;
 
     /** 触发压缩的 token 阈值（80% of 200k） */
     private static final long COMPRESS_TOKEN_THRESHOLD = 160_000L;
