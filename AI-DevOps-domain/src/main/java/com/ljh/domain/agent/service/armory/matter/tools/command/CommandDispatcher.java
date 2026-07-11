@@ -26,8 +26,6 @@ import java.util.concurrent.TimeoutException;
  * <p>架构：
  * Server (大脑) ──SSE──► Client (手脚)
  *                 ◄──HTTP POST──
- *
- * @author walissh dev
  */
 @Slf4j
 @Service

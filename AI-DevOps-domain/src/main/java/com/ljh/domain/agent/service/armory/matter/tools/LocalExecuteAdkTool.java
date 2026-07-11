@@ -22,8 +22,6 @@ import java.util.regex.Pattern;
  *   <li>Client 调用 Tauri 本地执行后，HTTP POST 回传结果</li>
  *   <li>Server 通过 CompletableFuture 阻塞等待结果</li>
  * </ul>
- *
- * @author walissh dev
  */
 @Slf4j
 @Service
@@ -63,7 +61,8 @@ public class LocalExecuteAdkTool {
 
     /**
      * 本地执行 Shell 命令（支持工作目录和超时）
-     *
+     * 只有向客户端发送指令并阻塞等待结果的功能，实际执行的结果需要等待前端返回过来
+     *  Client 回传本地指令执行结果：   @RequestMapping(value = "tool_result", method = RequestMethod.POST)
      * @param command 要执行的 Shell 命令
      * @param cwd 工作目录（可选），如 /Users/xxx/projects/myapp
      * @param timeoutMs 超时时间（毫秒），默认 60000

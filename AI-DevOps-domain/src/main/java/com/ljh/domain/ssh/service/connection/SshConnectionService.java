@@ -1,10 +1,11 @@
-package com.ljh.domain.ssh.service;
+package com.ljh.domain.ssh.service.connection;
 
 import com.ljh.domain.ssh.adapter.port.ISshSessionPort;
 import com.ljh.domain.ssh.adapter.repository.ISshConnectionRepository;
 import com.ljh.domain.ssh.model.entity.SshConnectionConfigEntity;
 import com.ljh.domain.ssh.model.entity.SshConnectionEntity;
 import com.ljh.domain.ssh.model.valobj.ConnectionStatusEnum;
+import com.ljh.domain.ssh.service.ISshConnectionDomainService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

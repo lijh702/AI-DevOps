@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 /**
  * SSH 命令执行 ADK 工具
  * 为智能体提供在 SSH 终端执行命令的能力
- * 
  * 使用 ADK 的 @Schema 注解定义参数，支持 FunctionTool.create()
  */
 @Slf4j
@@ -130,7 +129,6 @@ public class SshExecuteAdkTool {
 
     /**
      * 在 SSH 终端执行命令
-     * 
      * @param command 要执行的 Shell 命令
      * @return 执行结果
      */

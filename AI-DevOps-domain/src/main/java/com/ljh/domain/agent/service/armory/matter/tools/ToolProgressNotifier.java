@@ -15,8 +15,6 @@ import java.util.Map;
  * 关闭 internalToolExecutionEnabled=false 后，工具结果通过 ADK 事件流的
  * FunctionResponse 传递给 AiCallNode，通过 SSE 推送到前端，
  * 不再需要 side channel 推送，避免重复。
- *
- * @author walissh dev
  */
 public interface ToolProgressNotifier {
 
@@ -47,5 +45,5 @@ public interface ToolProgressNotifier {
      * @param args     工具参数（如执行的命令、文件路径）
      * @param rawResult 工具原始返回值 Map（包含 output/exitCode/success 等）
      */
-    void onToolResult(String toolName, String args, Map<String, Object> rawResult);
+//    void onToolResult(String toolName, String args, Map<String, Object> rawResult);
 }

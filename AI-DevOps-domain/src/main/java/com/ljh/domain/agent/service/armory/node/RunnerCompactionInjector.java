@@ -26,9 +26,6 @@ import java.util.Optional;
  * - overlapSize: 压缩时保留最近 N 条不压缩（重叠区）
  * - tokenThreshold: token 超过阈值时也触发压缩
  * - eventRetentionSize: 压缩后保留最近 N 条事件
- *
- * @author walicode-java
- * 2026/6/21
  */
 @Slf4j
 public class RunnerCompactionInjector {

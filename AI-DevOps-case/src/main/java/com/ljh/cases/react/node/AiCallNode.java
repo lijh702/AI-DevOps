@@ -6,6 +6,7 @@ import com.google.adk.events.Event;
 import com.google.adk.events.EventActions;
 import com.google.adk.runner.Runner;
 import com.google.genai.types.Content;
+import com.google.genai.types.Part;
 import com.ljh.api.dto.ChatRequestDTO;
 import com.ljh.api.dto.ReActResultDTO;
 import com.ljh.cases.react.AbstractAIAgentReActSupport;
@@ -169,7 +170,7 @@ public class AiCallNode extends AbstractAIAgentReActSupport {
 
         // 6. 构建用户消息（支持多模态：文本 + 图片）
         List<com.google.genai.types.Part> userParts = new ArrayList<>();
-        userParts.add(com.google.genai.types.Part.builder().text(enrichedMessage).build());
+        userParts.add(Part.builder().text(enrichedMessage).build());
 
         // 6.1 如果请求中包含内联图片数据，追加为多模态 Part
         List<ChatRequestDTO.InlineData> inlineDatas = requestParameter.getInlineDatas();
@@ -300,7 +301,6 @@ public class AiCallNode extends AbstractAIAgentReActSupport {
                                 eventCount,
                                 event.finalResponse(),
                                 eventText.length());
-
                         if (!eventText.isBlank()) {
                             hasObservableOutput = true;
                             appendChunk(textAccumulator, eventText);

@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -37,10 +36,8 @@ public class CodeEditAdkTool {
 
     @Resource
     private ISshFileDomainService sshFileDomainService;
-
     @Resource
     private ISshTerminalService sshTerminalService;
-
     @Resource(name = "sseToolProgressNotifier")
     private ToolProgressNotifier progressNotifier;
 
@@ -56,7 +53,6 @@ public class CodeEditAdkTool {
 
     /**
      * 读取本地文件内容
-     *
      * @param filePath 文件绝对路径
      * @return 文件内容
      */
@@ -78,6 +74,7 @@ public class CodeEditAdkTool {
             }
 
             String content = Files.readString(path, StandardCharsets.UTF_8);
+            // 是否被截断标志
             boolean truncated = false;
             long size = Files.size(path);
 
@@ -110,7 +107,6 @@ public class CodeEditAdkTool {
 
     /**
      * 写入/覆盖本地文件
-     *
      * @param filePath 文件绝对路径
      * @param content  文件内容
      * @return 写入结果
@@ -155,14 +151,13 @@ public class CodeEditAdkTool {
 
     /**
      * 列出本地目录结构
-     *
+     * ,不递归，只列一层
      * @param dirPath 目录路径
      * @return 目录列表
      */
     public Map<String, Object> listLocalFiles(
             @Schema(name = "dirPath", description = "要列出的本地目录路径，如 /Users/user/project 或 .")
             String dirPath) {
-
         try {
             Path path = Paths.get(dirPath);
             log.info("[CodeEdit-Local] 列出本地目录: path={}", dirPath);
@@ -178,8 +173,10 @@ public class CodeEditAdkTool {
 
             List<Map<String, Object>> items = new ArrayList<>();
             int count = 0;
+            // try() 括号里的代码是 Java 的 try-with-resources 语法，它代表声明和初始化需要自动关闭的资源
             try (Stream<Path> stream = Files.list(path)) {
-                List<Path> sorted = stream.sorted().collect(Collectors.toList());
+                // 字母序排列, 结果可预测，AI 更容易理解
+                List<Path> sorted = stream.sorted().toList();
                 for (Path item : sorted) {
                     if (count >= MAX_DIR_ENTRIES) break;
                     Map<String, Object> itemMap = new HashMap<>();
@@ -215,8 +212,7 @@ public class CodeEditAdkTool {
     }
 
     /**
-     * 在本地文件中搜索关键词
-     *
+     * 递归文件内容搜索器, 在本地文件中搜索关键词
      * @param directory 搜索目录
      * @param keyword   搜索关键词
      * @return 搜索结果
@@ -226,7 +222,6 @@ public class CodeEditAdkTool {
             String directory,
             @Schema(name = "keyword", description = "搜索关键词或正则表达式")
             String keyword) {
-
         try {
             Path searchPath = Paths.get(directory);
             log.info("[CodeEdit-Local] 搜索本地文件: dir={}, keyword={}", directory, keyword);
@@ -241,6 +236,11 @@ public class CodeEditAdkTool {
                     ".yml", ".yaml", ".json", ".xml", ".sh", ".conf", ".md", ".txt", ".sql", ".html", ".css", ".vue"};
             Set<String> extSet = new HashSet<>(Arrays.asList(extensions));
 
+            /*
+             * CONTINUE	        继续遍历	            正常处理
+             * TERMINATE	    立即停止所有遍历	    已找到 100 个结果，提前退出
+             * SKIP_SUBTREE	    跳过当前目录的子目录	忽略 node_modules、.git 等
+             */
             Files.walkFileTree(searchPath, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
@@ -254,6 +254,7 @@ public class CodeEditAdkTool {
                             break;
                         }
                     }
+                    // 避免读取二进制文件（图片、视频、zip），提高效率
                     if (!hasValidExt) return FileVisitResult.CONTINUE;
 
                     try {
@@ -261,9 +262,9 @@ public class CodeEditAdkTool {
                         for (int i = 0; i < lines.size(); i++) {
                             if (lines.get(i).contains(keyword)) {
                                 Map<String, Object> match = new HashMap<>();
-                                match.put("file", file.toAbsolutePath().toString());
-                                match.put("line", String.valueOf(i + 1));
-                                match.put("content", lines.get(i).trim());
+                                match.put("file", file.toAbsolutePath().toString());    //绝对路径
+                                match.put("line", String.valueOf(i + 1));   // 行数
+                                match.put("content", lines.get(i).trim());  //内容
                                 matches.add(match);
                                 if (matches.size() >= 100) return FileVisitResult.TERMINATE;
                             }
@@ -273,7 +274,6 @@ public class CodeEditAdkTool {
                     }
                     return FileVisitResult.CONTINUE;
                 }
-
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     String name = dir.getFileName() != null ? dir.getFileName().toString() : "";
@@ -305,14 +305,12 @@ public class CodeEditAdkTool {
 
     /**
      * 创建本地新文件
-     *
      * @param filePath 文件路径
      * @return 创建结果
      */
     public Map<String, Object> createLocalFile(
             @Schema(name = "filePath", description = "要创建的本地文件路径，如 /Users/user/project/new-app.js")
             String filePath) {
-
         try {
             Path path = Paths.get(filePath);
             log.info("[CodeEdit-Local] 创建本地文件: path={}", filePath);
@@ -345,14 +343,12 @@ public class CodeEditAdkTool {
 
     /**
      * 删除本地文件
-     *
      * @param filePath 文件路径
      * @return 删除结果
      */
     public Map<String, Object> deleteLocalFile(
             @Schema(name = "filePath", description = "要删除的本地文件路径")
             String filePath) {
-
         try {
             Path path = Paths.get(filePath);
             log.info("[CodeEdit-Local] 删除本地文件: path={}", filePath);
