@@ -3,6 +3,8 @@ package com.ljh.domain.agent.service.intent;
 import com.ljh.domain.agent.model.valobj.intent.ConversationContextVO;
 import com.ljh.domain.agent.model.valobj.intent.IntentResultVO;
 import com.ljh.domain.agent.service.IIntentService;
+import com.ljh.domain.agent.service.intent.classifier.LLMIntentClassifier;
+import com.ljh.domain.agent.service.intent.classifier.RuleIntentClassifier;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

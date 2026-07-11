@@ -56,7 +56,6 @@ public class AgentLoopExecutor {
      * <p>
      * 本方法包装 rootNode.apply()，在异步线程中执行节点链，
      * 同时在主线程进行空闲超时检测和取消控制。
-     *
      * @param config         循环配置
      * @param dynamicContext ReAct 动态上下文（已初始化）
      * @param requestDTO     请求参数

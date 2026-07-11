@@ -1,4 +1,4 @@
-package com.ljh.domain.agent.service.intent;
+package com.ljh.domain.agent.service.intent.classifier;
 
 import com.ljh.domain.agent.model.valobj.intent.ConversationContextVO;
 import com.ljh.domain.agent.model.valobj.intent.IntentResultVO;

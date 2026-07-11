@@ -60,6 +60,39 @@ public class ProjectFileSearchService {
     );
 
     /**
+     * 从用户输入中提取关键词
+     * <p>
+     * 混合分词策略：空格/标点拆分 + 驼峰拆分 + 英文小写化
+     */
+    public List<String> extractKeywordsFromInput(String userInput) {
+        if (userInput == null || userInput.isBlank()) return Collections.emptyList();
+        // 按空格、标点拆分
+        String[] tokens = userInput.split("[\\s,，。.!！?？;；:：/\\\\|()\\[\\]{}\"']+");
+        List<String> keywords = new ArrayList<>();
+        for (String token : tokens) {
+            if (token.length() < 2) continue;
+            String lower = token.toLowerCase();
+            keywords.add(lower);
+            // 驼峰拆分
+            if (token.matches("[A-Z][a-z]+[A-Z][a-z]+.*")) {
+                String[] parts = token.split("(?=[A-Z])");
+                for (String part : parts) {
+                    if (part.length() >= 2) keywords.add(part.toLowerCase());
+                }
+            }
+            // 路径拆分
+            if (token.contains("/")) {
+                String[] pathParts = token.split("/");
+                for (String part : pathParts) {
+                    if (part.length() >= 2) keywords.add(part.toLowerCase());
+                }
+            }
+        }
+        // 去重
+        return keywords.stream().distinct().collect(Collectors.toList());
+    }
+
+    /**
      * 在项目根目录中搜索与关键词匹配的文件
      *
      * @param projectRootPath 项目根路径
@@ -82,15 +115,17 @@ public class ProjectFileSearchService {
         List<FileSearchResult> results = new ArrayList<>();
 
         try (Stream<Path> paths = Files.walk(rootPath, MAX_DEPTH, FileVisitOption.FOLLOW_LINKS)) {
+            // 过滤掉文件夹，筛选可读文件
             List<Path> allFiles = paths
                     .filter(p -> Files.isRegularFile(p))
                     .filter(p -> !isExcluded(p))
-                    .collect(Collectors.toList());
+                    .toList();
 
             for (Path file : allFiles) {
+                // file 相对于 rootPath 的 相对路径（将绝对路径转换为相对路径）
                 String relativePath = rootPath.relativize(file).toString();
                 String fileName = file.getFileName().toString();
-
+                //计算相关度
                 double relevance = calculateRelevance(fileName, relativePath, keywords);
                 if (relevance > 0) {
                     String preview = readFilePreview(file);
@@ -118,43 +153,7 @@ public class ProjectFileSearchService {
         return results;
     }
 
-    /**
-     * 从用户输入中提取关键词
-     * <p>
-     * 混合分词策略：空格/标点拆分 + 驼峰拆分 + 英文小写化
-     */
-    public List<String> extractKeywordsFromInput(String userInput) {
-        if (userInput == null || userInput.isBlank()) return Collections.emptyList();
 
-        // 按空格、标点拆分
-        String[] tokens = userInput.split("[\\s,，。.!！?？;；:：/\\\\|()\\[\\]{}\"']+");
-        List<String> keywords = new ArrayList<>();
-
-        for (String token : tokens) {
-            if (token.length() < 2) continue;
-            String lower = token.toLowerCase();
-            keywords.add(lower);
-
-            // 驼峰拆分
-            if (token.matches("[A-Z][a-z]+[A-Z][a-z]+.*")) {
-                String[] parts = token.split("(?=[A-Z])");
-                for (String part : parts) {
-                    if (part.length() >= 2) keywords.add(part.toLowerCase());
-                }
-            }
-
-            // 路径拆分
-            if (token.contains("/")) {
-                String[] pathParts = token.split("/");
-                for (String part : pathParts) {
-                    if (part.length() >= 2) keywords.add(part.toLowerCase());
-                }
-            }
-        }
-
-        // 去重
-        return keywords.stream().distinct().collect(Collectors.toList());
-    }
 
     // ═══════════════════════════════════════════════════════════════
     //  匹配度计算
